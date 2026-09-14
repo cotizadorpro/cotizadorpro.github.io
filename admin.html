@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5B6068">
+<title>Administrador · Cotizador Pro</title>
+<style>
+:root{--bg:#5B6068;--card:#686E77;--card2:#747A83;--ink:#F7F8FA;--ink2:#E1E5EA;--muted:#BBC1C9;--line:rgba(255,255,255,.12);--blue:#00A8E0;--blue2:#73C8EF;--danger:#ff6b6b;--ok:#64d98b;--shadow:0 12px 30px rgba(0,0,0,.16)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.header{position:sticky;top:0;z-index:20;background:#50565E;border-bottom:1px solid var(--line);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}.header h1{margin:0;font-size:21px}.header small{color:var(--muted)}
+.container{max-width:1250px;margin:24px auto;padding:0 16px 50px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{background:var(--card);color:var(--ink2);border:1px solid var(--line);padding:10px 15px;border-radius:10px}.tab.on{background:var(--blue);color:white;border-color:transparent}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:var(--shadow)}.card h2,.card h3{margin-top:0}.subcard{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:15px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.grow{flex:1}
+label{display:block;font-weight:700;margin:0 0 6px;color:var(--ink2);font-size:13px}input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:#5D636C;color:var(--ink);font:inherit;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--blue)}textarea{min-height:105px;resize:vertical}input::placeholder,textarea::placeholder{color:#c7ccd2}
+button{border:0;border-radius:9px;padding:10px 15px;cursor:pointer;font-weight:750;background:var(--card2);color:var(--ink);border:1px solid var(--line)}button:hover{filter:brightness(1.06)}button.primary{background:var(--blue);color:white;border-color:transparent}button.danger{background:rgba(255,107,107,.14);color:#ffd4d4;border-color:rgba(255,107,107,.35)}button.ok{background:rgba(100,217,139,.14);color:#d8ffe5;border-color:rgba(100,217,139,.35)}button:disabled{opacity:.55;cursor:not-allowed}
+.status{padding:12px 14px;border-radius:10px;background:rgba(0,168,224,.12);border:1px solid rgba(0,168,224,.28);color:var(--ink2)}.status.success{background:rgba(100,217,139,.12);border-color:rgba(100,217,139,.28)}.status.danger{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.28)}
+.list{display:grid;gap:10px}.item{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:14px;align-items:center}.thumb{width:58px;height:58px;border-radius:10px;background:#5D636C;object-fit:contain}.meta{color:var(--muted);font-size:13px;margin-top:4px}.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}.badge.on{background:rgba(100,217,139,.15);color:#d8ffe5}.badge.off{background:rgba(255,107,107,.15);color:#ffd4d4}.hidden{display:none!important}.section{display:none}.section.on{display:block}.preview{max-width:150px;max-height:150px;object-fit:contain;background:#5D636C;border-radius:12px;padding:8px}.note{color:var(--muted);font-size:13px}.price-grid{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:8px;align-items:center}.price-head{font-size:12px;color:var(--muted);font-weight:800}.modal{position:fixed;inset:0;z-index:50;background:rgba(25,28,32,.72);display:flex;align-items:flex-start;justify-content:center;padding:30px 15px;overflow:auto}.modalbox{width:min(1050px,100%);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+@media(max-width:760px){.grid,.grid3{grid-template-columns:1fr}.price-grid{grid-template-columns:1fr 1fr}.item{align-items:flex-start;flex-wrap:wrap}.header{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="header"><div><h1>⚙️ Administrador de Catálogo</h1><small>Supabase · Cotizador Pro</small></div><div id="estado" class="status">Cargando catálogo…</div></header>
+<main class="container">
+<div class="tabs">
+<button class="tab on" data-tab="equipos">📱 Equipos</button><button class="tab" data-tab="planes">📋 Planes</button><button class="tab" data-tab="servicios">🧩 Servicios</button><button class="tab hidden" data-tab="vigencias">📅 Vigencias</button>
+</div>
+<section id="sec-equipos" class="section on">
+<div class="card"><div class="row between"><div><h2>Equipos</h2><div class="note">Agregar, editar, activar/desactivar, imágenes, especificaciones y precios.</div></div><button class="primary" onclick="nuevoEquipo()">＋ Agregar equipo</button></div><div style="margin-top:16px"><input id="buscarEquipo" placeholder="Buscar por modelo, marca, capacidad o código…" autocomplete="off"></div></div>
+<div id="listaEquipos" class="list"></div>
+</section>
+<section id="sec-planes" class="section"><div class="card"><div class="row between"><div><h2>Planes</h2><div class="note">Renta, nombre, código y disponibilidad.</div></div><button class="primary" onclick="nuevoPlan()">＋ Agregar plan</button></div></div><div id="listaPlanes" class="list"></div></section>
+<section id="sec-servicios" class="section"><div class="card"><div class="row between"><div><h2>Servicios adicionales</h2><div class="note">Control de Datos, Seguro AT&T y futuros servicios.</div></div><button class="primary" onclick="nuevoServicio()">＋ Agregar servicio</button></div></div><div id="listaServicios" class="list"></div></section>
+<section id="sec-vigencias" class="section hidden"><div class="card"><h2>Vigencias</h2><div class="note">Edita las fechas y activa/desactiva periodos.</div></div><div id="listaVigencias" class="list"></div></section>
+</main>
+<div id="modal" class="modal hidden"><div class="modalbox"><div class="row between"><h2 id="modalTitle">Editar</h2><button onclick="cerrarModal()">✕ Cerrar</button></div><div id="modalBody"></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-catalog.js"></script>
+<script>
+/* El administrador carga directamente su propia lógica.
+   No debe esperar a SUPABASE_CATALOGO_READY, porque admin.js consulta
+   las tablas de Supabase por sí mismo. */
+(function(){
+  var s=document.createElement('script');
+  s.src='admin.js?v='+Date.now();
+  s.onload=function(){
+    console.log('✅ admin.js cargado');
+  };
+  s.onerror=function(){
+    var x=document.getElementById('estado');
+    if(x){
+      x.className='status danger';
+      x.textContent='Error cargando admin.js';
+    }
+    console.error('❌ No se pudo cargar admin.js');
+  };
+  document.body.appendChild(s);
+})();
+</script>
+</body></html>
