@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function loggedIn() { return request.auth != null; }
+    function email() { return loggedIn() && request.auth.token.email != null ? request.auth.token.email.lower() : ''; }
+    function isAdmin1() { return email() == 'admin1@cotizadorpro.app'; }
+    function isOwnProfile(usuario) { return email() == usuario.lower() + '@cotizadorpro.app'; }
+    function myUsuario() { return email().split('@')[0].upper(); }
+
+    match /empleados/{usuario} {
+      allow read: if isOwnProfile(usuario) || isAdmin1();
+      allow create, update, delete: if false;
+    }
+
+    // Actividad V46: cada usuario autenticado puede registrar/actualizar SOLO sus cotizaciones.
+    match /cotizaciones/{cotizacionId} {
+      allow create: if loggedIn() && request.resource.data.attuid == myUsuario();
+      allow read: if loggedIn();
+      allow update: if loggedIn() && resource.data.attuid == myUsuario() && request.resource.data.attuid == resource.data.attuid;
+      allow delete: if false;
+    }
+
+    // El dashboard trabaja con resúmenes diarios agregados. En Spark, sin backend,
+    // el cliente necesita leer y actualizar estos documentos para contabilizar actividad.
+    match /resumenes/{fecha} {
+      allow read, create, update: if loggedIn();
+      allow delete: if false;
+    }
+  }
+}
